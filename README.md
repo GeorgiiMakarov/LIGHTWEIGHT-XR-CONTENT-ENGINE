@@ -17,11 +17,12 @@ Unity 6 / OpenXR: свитчер слоёв, классификаторы жес
 
 ## Состав репозитория
 **docs/ — архитектурный документ rev3:** 
-два сценария синхронизации (A — UGC/локальное ACR через AudioPlaybackCapture, B — DRM cue API для партнёров), 
-словарь жестов v1, фазы развития
-unity/ — исходники скелета Phase 1 (C#): 
+два сценария синхронизации (A — UGC/локальное ACR через AudioPlaybackCapture, B — DRM cue API для партнёров), словарь жестов v1, фазы развития
+
+**unity/** — исходники скелета Phase 1 (C#): 
 XREngine, LayerStack, LayerSwitcher, классификаторы Swipe / PalmHold, 
 пример манифеста
+
 Releases — v0.1-phase1: zip-архив скелета для быстрой передачи
 
 
