@@ -1,4 +1,4 @@
-# LIGHTWEIGHT-XR-CONTENT-ENGINE-
+# LIGHTWEIGHT-XR-CONTENT-ENGINE
 LIGHTWEIGHT XR CONTENT ENGINE (Android XR Edition)
 Архитектурный документ — Редакция 3 (ревью от 2026-09-13)
 =========================================================
