@@ -16,6 +16,13 @@
 
 **unity/** — исходники скелета Phase 1 (C#): XREngine, LayerStack, LayerSwitcher, классификаторы Swipe / PalmHold, пример манифеста
 
+**schemas/** - xr-layer-manifest.schema.json (контракт манифеста слоёв, Spatial VAST/VMAP), gesture-stream.schema.json (контракт синтетического потока жестов)
+
+**unity/LayerSwitcherEmulator/** - headless-тестбенч: чистый C#, replay синтетического потока 26 суставов из JSON через ту же математику жестов, PASS/FAIL-отчёт и замер бюджета 100 мс. Работает без Unity и железа (dotnet run)
+
+**tools/** - generate_gesture_stream.py (детерминированный генератор синтетики, seed 7), check_pipeline.py  (референсная проверка пайплайна)
+
+
 ## Releases — v0.1-phase1: zip-архив скелета для быстрой передачи
 
 
