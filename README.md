@@ -23,7 +23,7 @@
 **tools/** - generate_gesture_stream.py (детерминированный генератор синтетики, seed 7), check_pipeline.py  (референсная проверка пайплайна)
 
 
-## Architecture: Host-Periphery Topology**
+## Architecture: Host-Periphery Topology
 
 **docs/xr-session-protocol-v1.md**
 протокол взаимодействия смартфона и XR smart glass.
