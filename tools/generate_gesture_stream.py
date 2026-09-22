@@ -20,7 +20,7 @@ import os
 FPS = 90
 DT_MS = 1000.0 / FPS
 SEED = 7
-OUT = os.path.join(os.path.dirname(__file__), "..", "unity", "Emulator",
+OUT = os.path.join(os.path.dirname(__file__), "..", "unity", "LayerSwitcherEmulator",
                    "data", "sample_gesture_stream.json")
 
 
