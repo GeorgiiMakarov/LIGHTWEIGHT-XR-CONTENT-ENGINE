@@ -46,6 +46,8 @@
 ```
 python3 tools/validate_character_pack.py examples/sample_character_pack.json --schema schemas/character-pack.schema.json
 python3 tools/test_character_pack.py   # матрица позитивных/негативных проб
+python3 tools/e2e_stack_check.py       # сквозной прогон: пак → XR-события → decision core → Defense-Dossier
+                                       # (нужны соседние чекауты ../decision-intelligence-core и ../Defense-Dossier)
 ```
 
 Проверяет: схему, уникальность id состояний, `fallback_state`, ссылки на ассеты, соответствие локалей, покрытие поверхностей, существование `file://` ассетов **и их целостность** (sha256 + bytes пересчитываются по файлу).
@@ -58,6 +60,7 @@ examples/sample_character_pack.json
 docs/character-pack-spec-v1.md   (этот файл)
 tools/validate_character_pack.py
 tools/test_character_pack.py     (автоматическая матрица проб)
+tools/e2e_stack_check.py         (сквозная проверка стека из трёх репозиториев)
 ```
 
 ## 10. Честные ограничения v1
