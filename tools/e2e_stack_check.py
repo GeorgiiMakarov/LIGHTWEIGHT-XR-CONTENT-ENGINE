@@ -151,11 +151,15 @@ async def main():
         all_valid &= not errs
     check("3 XR events validate against xr-event.schema.json v1", all_valid)
 
-    # negative: sub-threshold dwell must be rejected by schema
-    bad = make_event("ImpressionValidated", session_id, preset_id, ["dwell:x:800ms"],
+    # sub-floor dwell is a VALID event now (policy, not wire contract, decides billing)
+    sub = make_event("ImpressionValidated", session_id, preset_id, ["dwell:x:800ms"],
                      dwell_duration_ms=800, head_stable=True, timeline_coverage_pct=20.0)
-    check("schema rejects dwell 800ms < 1200ms floor",
-          bool(list(XR_VALIDATOR.iter_errors(bad))))
+    check("schema accepts sub-floor dwell 800ms (recorded, billing decides)",
+          not list(XR_VALIDATOR.iter_errors(sub)))
+    zero = make_event("ImpressionValidated", session_id, preset_id, ["dwell:x:0ms"],
+                      dwell_duration_ms=0, head_stable=True, timeline_coverage_pct=0.0)
+    check("schema still rejects dwell 0ms (technical minimum 1)",
+          bool(list(XR_VALIDATOR.iter_errors(zero))))
     bad2 = make_event("ImpressionValidated", session_id, preset_id, [],
                       dwell_duration_ms=8200, head_stable=True, timeline_coverage_pct=95.0)
     check("schema rejects empty evidence_refs (I3 boundary)",
@@ -194,10 +198,14 @@ async def main():
     check("I3: metric without evidence -> REJECTED_MISSING_EVIDENCE",
           rej.status.value == "REJECTED_MISSING_EVIDENCE")
 
-    # billing rule (profile section 5, policy level)
-    dwell, imu = 8200, 0.4
-    billable = dwell >= DWELL_FLOOR_MS and imu <= V_MAX_MPS
-    check("billing rule: dwell 8200>=1200, imu 0.4<=1.2 -> BILLABLE", billable)
+    # billing rule (xr-adtech-profile section 5 — policy level, not wire contract)
+    def is_billable(dwell_ms, imu_v_max_mps):
+        return dwell_ms >= DWELL_FLOOR_MS and imu_v_max_mps <= V_MAX_MPS
+
+    check("billing rule: dwell 8200>=1200, imu 0.4<=1.2 -> BILLABLE",
+          is_billable(8200, 0.4))
+    check("billing rule: dwell 800<1200 -> recorded but NOT billable",
+          not is_billable(800, 0.4))
 
     # ---- 4. Merkle anchor + scoreboard (core) ----
     root = await anchor.force_close()

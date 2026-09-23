@@ -56,8 +56,8 @@
         {
           "properties": {
             "dwell_duration_ms": {
-              "description": "In-playback head stability duration. Floor 1200 ms = the billable attention threshold. This is the second, post-spawn role of head-dwell (evidence for I3).",
-              "minimum": 1200,
+              "description": "In-playback head stability duration in ms. The wire contract only requires a positive value; the billable attention floor (1200 ms) is a billing-policy parameter (xr-adtech-profile section 5, decision-intelligence-core), not part of this schema, so sub-floor impressions can still be recorded for funnel analytics.",
+              "minimum": 1,
               "type": "integer"
             },
             "event_type": {
