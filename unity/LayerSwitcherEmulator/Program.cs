@@ -13,7 +13,7 @@ using System.Diagnostics;
 using System.Text.Json;
 using XrLayerSwitcherEmulator;
 
-return Emulator.Main(args);
+return Emulator.Run(args);
 
 sealed class Segment
 {
@@ -27,7 +27,7 @@ static class Emulator
 {
     const long WindowGraceMs = 300;
 
-    static int Main(string[] args)
+    public static int Run(string[] args)
     {
         string manifestPath = args.Length > 0 ? args[0] : "data/sample_manifest_demo.json";
         string streamPath = args.Length > 1 ? args[1] : "data/sample_gesture_stream.json";

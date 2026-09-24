@@ -11,7 +11,7 @@ No Unity, no headset, no dataset needed — the studio runs this on day one.
 Requires the .NET 8 SDK:
 
 ```bash
-cd unity/Emulator
+cd unity/LayerSwitcherEmulator
 dotnet run -- data/sample_manifest_demo.json data/sample_gesture_stream.json
 ```
 
@@ -37,13 +37,14 @@ Sample output:
 
 ```
 [  1000 ms] clock -> spawn layer_01 (visible layer 0)
-[  2344 ms] SwipeRight -> visible layer 1 (dispatch 0.002 ms)
+[  2344 ms] SwipeRight -> visible layer 1 (dispatch 0.229 ms)
 ...
 [PASS] swipe_right: expected 1x SwipeRight, got 1
 [PASS] false positives: 0
-max classify/frame: 0.022 ms, max switch dispatch: 0.002 ms (budget 100 ms) -> PASS
+max classify/frame: 3.664 ms, max switch dispatch: 0.229 ms (budget 100 ms) -> PASS
 RESULT: ALL PASS
 ```
+(measured 2026-09-24, dotnet 8.0.425, Linux sandbox; classify max includes first-frame JIT)
 
 ## Files
 
@@ -58,8 +59,11 @@ RESULT: ALL PASS
 
 ## Honest limits
 
-- The C# emulator was not compiled in this environment (no .NET SDK here);
-  first `dotnet run` at the studio is the verification step.
+- First compiled and run 2026-09-24 (dotnet 8.0.425, Linux): ALL PASS. The first
+  run caught two real bugs — `Emulator.Main` was private (CS0122) and the
+  `t_ms` wire field never mapped to `TMs` (camelCase policy expected `tMs`,
+  so every timestamp deserialized as 0 and nothing was detected). Both fixed;
+  the sample output above is now the actual output.
 - Dispatch timings on a desktop prove the pipeline is O(1) per frame, not that
   a phone hits the budget — the on-device number comes from the gesture dataset
   milestone (rev3 §6).

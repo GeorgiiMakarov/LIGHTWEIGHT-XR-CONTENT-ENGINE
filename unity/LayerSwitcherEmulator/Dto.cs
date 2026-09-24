@@ -18,6 +18,7 @@ public sealed class GestureStream
 
 public sealed class JointFrame
 {
+    [JsonPropertyName("t_ms")] // wire format is snake_case (see gesture-stream.schema.json)
     public long TMs { get; set; }
     public bool Tracked { get; set; } = true;
     public string Label { get; set; } = "";
