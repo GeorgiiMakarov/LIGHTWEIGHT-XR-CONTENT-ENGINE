@@ -9,6 +9,8 @@
 
 Скелет на целевом железе ещё не компилировался и не тестировался. Первая компиляция, отладка и сбор датасета жестов запланированы как milestone 1 совместно с инженерным партнёром. Пороги классификаторов - заглушки под тюнинг на реальном датасете.
 
+Проверено без железа: схемы и спецификации, валидаторы паков, сквозной e2e-прогон пак → события → decision core → Defense-Dossier (14/14 зелёных).
+
 
 ## Состав репозитория
 
@@ -20,7 +22,7 @@
 
 **unity/LayerSwitcherEmulator/** headless-тестбенч: чистый C#, replay синтетического потока 26 суставов из JSON через ту же математику жестов, PASS/FAIL-отчёт и замер бюджета 100 мс. Работает без Unity и железа (dotnet run)
 
-**tools/** generate_gesture_stream.py (детерминированный генератор синтетики, seed 7), check_pipeline.py (референсная проверка пайплайна), validate_character_pack.py (валидатор паков), test_character_pack.py (матрица позитивных/негативных проб), e2e_stack_check.py (сквозной прогон: пак → XR-события → decision core → Defense-Dossier, 12/12)
+**tools/** generate_gesture_stream.py (детерминированный генератор синтетики, seed 7), check_pipeline.py (референсная проверка пайплайна), validate_character_pack.py (валидатор паков), test_character_pack.py (матрица позитивных/негативных проб), e2e_stack_check.py (сквозной прогон: пак → XR-события → decision core → Defense-Dossier, 14/14)
 
 **examples/** presets/ (пример таймингового пресета), events/ (примеры доменных событий), sample_character_pack.json (референсный пак персонажа «Ару»)
 
@@ -41,6 +43,8 @@
 **Phase 2.5** (roadmap) On-device SLM intent layer: резидентная в NPU-памяти SLM класса 3B вместо эвристических порогов жестов (фьюжн поз руки + аудиоконтекст + таймлайн); gated on железо с ≥12 ГБ unified memory
 
 **Phase 3** Сценарий B: cue-контракт POST /v1/xr-cue для DRM-партнёров (BD-трек), бэкенд, Co-Viewing Sync.
+
+**Showtime Audit** — Merkle-якорение биллинговых записей работает (синтетика); продакшн-подписи (ЭЦП НУЦ РК; интеграция RFC 3161 TSA в аудит — следующий шаг).
 
 
 
