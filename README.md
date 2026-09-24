@@ -1,5 +1,7 @@
 # Lightweight XR Content Engine (Android XR Edition)
 
+[![CI](https://github.com/GeorgiiMakarov/LIGHTWEIGHT-XR-CONTENT-ENGINE/actions/workflows/ci.yml/badge.svg)](https://github.com/GeorgiiMakarov/LIGHTWEIGHT-XR-CONTENT-ENGINE/actions/workflows/ci.yml)
+
 ## **B2B SDK для интерактивных 3D-слоёв поверх видео:** pre-baked XR-состояния, переключаемые жестами руки, с привязкой к таймингу контента. Паттерн — динамическая вставка рекламы в онлайн-видео (VAST/VMAP), перенесённая в пространственный XR.
 
 
