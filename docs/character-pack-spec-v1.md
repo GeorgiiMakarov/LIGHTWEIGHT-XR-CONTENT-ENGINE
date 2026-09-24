@@ -19,6 +19,13 @@
 
 Если пак заявляет поверхность, каждое состояние обязано иметь блок под неё (`facial` / `xr`) — проверяет валидатор.
 
+## 2.1. Тиры продукта L1/L2
+
+Поле `delivery_tier` в паке (`"L1"` | `"L2"`, обязательное):
+
+- **L1 — robot-native (база).** Персонаж на встроенном экране робота + голос из динамика. Работает для всех прохожих без очков и смартфонов. Ядро ценности для владельца флота. Референсный пак «Ару» — L1.
+- **L2 — XR-stream (премиум).** Персонаж и AR-слой в видеопотоке XR-очков посетителя (мимика, субтитры, контекстные подсказки), голос — в гарнитуру очков. L2 — надстройка над L1, никогда не замена: пак L2 обязан покрывать `facial_display` (проверяет валидатор, не только схема).
+
 ## 3. Состояния и триггеры
 
 Состояние входит по событию Genie Studio Agent — **только чтение**, пак ничего не пишет обратно в робота. Имена событий (`genie.idle`, `genie.visitor_detected`, …) — предварительные, до подтверждения каталога событий QAZBOT.
@@ -56,8 +63,11 @@ python3 tools/e2e_stack_check.py       # сквозной прогон: пак �
 
 ```
 schemas/character-pack.schema.json
-examples/sample_character_pack.json
+examples/sample_character_pack.json   (референсный пак «Ару», delivery_tier: L1)
+examples/sidecar-config.yaml          (пример конфигурации sidecar-агента, 10 строк)
 docs/character-pack-spec-v1.md   (этот файл)
+docs/integration-contract-sidecar.md  (контракт интеграции: тонкий sidecar-агент)
+docs/pilot-acceptance.md              (acceptance-сценарий пилота «одна идеальная связка»)
 tools/validate_character_pack.py
 tools/test_character_pack.py     (автоматическая матрица проб)
 tools/e2e_stack_check.py         (сквозная проверка стека из трёх репозиториев)

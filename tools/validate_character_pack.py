@@ -9,6 +9,8 @@ Checks:
      - facial.expression_clip / xr.bundle_asset reference listed asset_ids
      - voice_lines locales are a subset of the pack locales
      - every state covers every target surface
+     - delivery_tier L2 packs must also cover facial_display
+       (L2 builds on L1, never replaces it)
   3. file:// asset URIs must exist on disk (pack:// URIs are resolved at
      distribution time and are skipped here).
 
@@ -89,6 +91,10 @@ def main():
         if missing:
             fail(f"surface '{surface}': states missing '{key}' block: {missing}")
 
+    if pack["delivery_tier"] == "L2" and "facial_display" not in pack["target_surfaces"]:
+        fail("delivery_tier 'L2' must also cover 'facial_display' "
+             "(L2 builds on L1, never replaces it)")
+
     # --- file:// assets: existence + integrity (sha256 + bytes) ---
     for a in pack["assets"]:
         u = urllib.parse.urlparse(a["uri"])
@@ -108,6 +114,7 @@ def main():
     # they are checked at packaging/distribution time, not by this validator.
 
     print(f"PASS: {pack['pack_id']} v{pack['pack_version']} "
+          f"[{pack['delivery_tier']}] "
           f"({len(states)} states, {len(pack['assets'])} assets, "
           f"surfaces={','.join(pack['target_surfaces'])})")
 

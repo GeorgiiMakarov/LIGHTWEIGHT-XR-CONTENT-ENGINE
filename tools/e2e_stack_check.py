@@ -132,7 +132,7 @@ async def main():
 
     events = [
         make_event("PresetServed", session_id, preset_id,
-                   ["trigger:genie.visitor_detected", "pack:pack_aru_guide:1.0.0"],
+                   ["trigger:genie.visitor_detected", "pack:pack_aru_guide:1.1.0"],
                    trigger="schedule", manifest_version="1.0",
                    started_at_phone_ms=int(time.time() * 1000),
                    planned_duration_ms=state["timing"]["duration_ms"]),
@@ -226,7 +226,7 @@ async def main():
         leaf = dd.Leaf(submitter_id="qazbot-fleet", role="fleet_operator", period=1,
                        content={"event_type": et, "status": status,
                                 "core_leaf": leaf_hash, "dwell_ms": 8200,
-                                "billable": True, "pack": "pack_aru_guide:1.0.0"},
+                                "billable": True, "pack": "pack_aru_guide:1.1.0"},
                        claimed_date="2026-09-23")
         leaf.signature = dd.mock_ecp_sign(leaf.submitter_id, leaf.content_hash())
         leaves.append(leaf)

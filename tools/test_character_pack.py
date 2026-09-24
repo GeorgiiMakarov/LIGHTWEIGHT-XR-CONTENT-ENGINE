@@ -103,6 +103,19 @@ def file_missing(p):
     p["assets"][0]["sha256"] = "0" * 64
 
 
+def tier_l2_ok(p):
+    p["delivery_tier"] = "L2"  # BASE already targets both surfaces
+
+
+def tier_l2_no_facial(p):
+    p["delivery_tier"] = "L2"
+    p["target_surfaces"] = ["xr_glasses"]
+
+
+def bad_tier(p):
+    p["delivery_tier"] = "L3"
+
+
 PROBES = [
     ("valid sample pack", lambda: BASE, True),
     ("original_design=false rejected", lambda: mutate(set_original_false), False),
@@ -116,6 +129,9 @@ PROBES = [
     ("file:// with correct sha256 passes", lambda: mutate(file_ok), True),
     ("file:// with wrong sha256 rejected", lambda: mutate(file_bad_hash), False),
     ("file:// missing file rejected", lambda: mutate(file_missing), False),
+    ("L2 pack covering both surfaces passes", lambda: mutate(tier_l2_ok), True),
+    ("L2 without facial_display rejected", lambda: mutate(tier_l2_no_facial), False),
+    ("unknown delivery_tier rejected", lambda: mutate(bad_tier), False),
 ]
 
 failures = []
