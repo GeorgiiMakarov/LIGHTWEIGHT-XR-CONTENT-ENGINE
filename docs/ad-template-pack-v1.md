@@ -52,6 +52,10 @@ json.dumps(obj, sort_keys=True, separators=(",", ":"),
 `examples/sample_consent_receipt.json`,
 `examples/sample_consent_granted.json`, `examples/sample_consent_revoked.json`.
 
+> Примеры — synthetic demo: подпись квитанции (`BASE64SIG_PLACEHOLDER`) и
+> sha256 креатива/фолбэка (`aaa…`/`bbb…`) — плейсхолдеры, не криптографические
+> гарантии. Проверяется форма и инварианты, не подлинность подписи.
+
 ## Проверки
 
 - `tools/validate_template_pack.py` — schema + P1 + level/slots

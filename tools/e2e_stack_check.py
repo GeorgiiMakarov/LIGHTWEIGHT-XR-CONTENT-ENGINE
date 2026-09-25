@@ -249,15 +249,19 @@ async def main():
           not dd.verify_merkle_proof(tampered.leaf_hash(), proof, dd_root))
 
     # ---- 6. Ad template pack: consent -> personalized / fallback path (glue) ----
+    # NOTE: the template is validated with the SAME validate() the CLI uses
+    # (tools/validate_template_pack.py), so "written vs checked" cannot drift.
+    sys.path.insert(0, str(REPO_ROOT / "tools"))
+    from validate_template_pack import validate as validate_tpl
     TPL = json.loads((REPO_ROOT / "examples" / "sample_template_pack.json").read_text())
-    TPL_SCHEMA = json.loads((REPO_ROOT / "schemas" / "template-pack.schema.json").read_text())
     CSR_SCHEMA = json.loads((REPO_ROOT / "schemas" / "consent-receipt.schema.json").read_text())
     EVT_SCHEMA = json.loads((REPO_ROOT / "schemas" / "consent-event.schema.json").read_text())
-    tpl_v = jsonschema.Draft7Validator(TPL_SCHEMA)
     csr_v = jsonschema.Draft7Validator(CSR_SCHEMA)
     evt_v = jsonschema.Draft7Validator(EVT_SCHEMA)
-    check("ad template pack validates (schema + P1 + level/slots)",
-          not list(tpl_v.iter_errors(TPL)))
+    tpl_errors = validate_tpl(TPL)
+    check("ad template pack validates via validate_template_pack.validate "
+          "(schema + P1 + level/slots + manifest_sha256)",
+          not tpl_errors, "; ".join(tpl_errors[:2]))
     CSR = json.loads((REPO_ROOT / "examples" / "sample_consent_receipt.json").read_text())
     GRANT = json.loads((REPO_ROOT / "examples" / "sample_consent_granted.json").read_text())
     check("consent receipt + ConsentGranted validate",
