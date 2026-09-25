@@ -278,7 +278,7 @@ async def main():
                                 "consent_receipt_id": consent["receipt_id"]}
 
     mode, det = compose_ad(TPL, None)
-    ad_fallback = make_event("ImpressionValidated", session_id, "slot_ad_01",
+    ad_fallback = make_event("ImpressionValidated", session_id, "preset_ad_fallback_01",
                              ["pack:tpl_demo_welcome_01:1.0.0", "served:fallback",
                               "personalized:false"],
                              dwell_duration_ms=2000, head_stable=True,
