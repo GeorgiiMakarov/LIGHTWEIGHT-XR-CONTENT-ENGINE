@@ -19,6 +19,10 @@ jobs:
         run: python3 tools/validate_character_pack.py examples/sample_character_pack.json
       - name: Pack validator probe matrix (15 probes)
         run: python3 tools/test_character_pack.py
+      - name: Validate ad template pack (schema + P1 + level/slots + hash)
+        run: python3 tools/validate_template_pack.py examples/sample_template_pack.json
+      - name: Ad template pack probe matrix (9 probes)
+        run: python3 tools/test_template_pack.py
       - name: Reference pipeline check (gesture math vs 100 ms budget)
         run: python3 tools/check_pipeline.py
 

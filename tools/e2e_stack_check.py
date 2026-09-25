@@ -24,6 +24,7 @@ Pack and xr-event.schema.json are read from THIS repo.
 """
 import argparse
 import asyncio
+import hashlib
 import importlib.util
 import json
 import os
@@ -246,6 +247,51 @@ async def main():
                        signature=leaves[imp_idx].signature)
     check("Defense-Dossier: tampered leaf (dwell 8200->100) rejected",
           not dd.verify_merkle_proof(tampered.leaf_hash(), proof, dd_root))
+
+    # ---- 6. Ad template pack: consent -> personalized / fallback path (glue) ----
+    TPL = json.loads((REPO_ROOT / "examples" / "sample_template_pack.json").read_text())
+    TPL_SCHEMA = json.loads((REPO_ROOT / "schemas" / "template-pack.schema.json").read_text())
+    CSR_SCHEMA = json.loads((REPO_ROOT / "schemas" / "consent-receipt.schema.json").read_text())
+    EVT_SCHEMA = json.loads((REPO_ROOT / "schemas" / "consent-event.schema.json").read_text())
+    tpl_v = jsonschema.Draft7Validator(TPL_SCHEMA)
+    csr_v = jsonschema.Draft7Validator(CSR_SCHEMA)
+    evt_v = jsonschema.Draft7Validator(EVT_SCHEMA)
+    check("ad template pack validates (schema + P1 + level/slots)",
+          not list(tpl_v.iter_errors(TPL)))
+    CSR = json.loads((REPO_ROOT / "examples" / "sample_consent_receipt.json").read_text())
+    GRANT = json.loads((REPO_ROOT / "examples" / "sample_consent_granted.json").read_text())
+    check("consent receipt + ConsentGranted validate",
+          not list(csr_v.iter_errors(CSR)) and not list(evt_v.iter_errors(GRANT)))
+
+    def compose_ad(template, consent):
+        """P2 glue: device consent is authoritative; no valid consent -> fallback."""
+        required = set(template["consent"]["classes_required"])
+        if consent is None:
+            return "fallback", {"reason": "no_consent", "personalized": False}
+        granted_classes = {k for k, v in consent["classes"].items() if v}
+        if not required <= granted_classes:
+            return "fallback", {"reason": "classes_insufficient", "personalized": False}
+        ih = hashlib.sha256(
+            (template["template_id"] + consent["receipt_id"] + "compose").encode()
+        ).hexdigest()
+        return "personalized", {"personalized": True, "instance_hash": ih,
+                                "consent_receipt_id": consent["receipt_id"]}
+
+    mode, det = compose_ad(TPL, None)
+    ad_fallback = make_event("ImpressionValidated", session_id, "slot_ad_01",
+                             ["pack:tpl_demo_welcome_01:1.0.0", "served:fallback",
+                              "personalized:false"],
+                             dwell_duration_ms=2000, head_stable=True,
+                             timeline_coverage_pct=90.0)
+    check("ad path: no consent -> fallback only, personalized=false, event valid",
+          mode == "fallback" and not det["personalized"]
+          and not list(XR_VALIDATOR.iter_errors(ad_fallback)))
+
+    mode2, det2 = compose_ad(TPL, CSR)
+    check("ad path: valid consent -> personalized, instance hash + receipt id carried",
+          mode2 == "personalized" and det2["personalized"]
+          and len(det2["instance_hash"]) == 64
+          and det2["consent_receipt_id"] == CSR["receipt_id"])
 
     print(f"\n{ok_count}/{total_count} checks green")
     return ok_count == total_count

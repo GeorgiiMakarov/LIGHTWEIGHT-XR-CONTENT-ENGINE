@@ -11,24 +11,26 @@
 
 Скелет на целевом железе ещё не компилировался и не тестировался. Первая компиляция, отладка и сбор датасета жестов запланированы как milestone 1 совместно с инженерным партнёром. Пороги классификаторов - заглушки под тюнинг на реальном датасете.
 
-Проверено без железа: схемы и спецификации, валидаторы паков, сквозной e2e-прогон пак → события → decision core → Defense-Dossier (14/14 зелёных).
+Проверено без железа: схемы и спецификации, валидаторы паков, сквозной e2e-прогон пак → события → decision core → Defense-Dossier (18/18 зелёных).
 
-**CI:** `.github/workflows/ci.yml` гоняет на каждый пуш валидатор паков, матрицу проб, референсный пайплайн, e2e-прогон 14/14 и C#-эмулятор; прикладывает verification-артефакт. **Бенчмарки:** `docs/benchmarks.md` (замеры без железа, не гарантии для устройства).
+**Ad Template Pack (DRAFT):** персонализированная реклама для XR. Рекламодатель заранее описывает шаблон (`schemas/template-pack.schema.json`), пользователь даёт подписанное согласие (`schemas/consent-receipt.schema.json`, события `ConsentGranted/Revoked` в `schemas/consent-event.schema.json`), персонализация компонуется только на устройстве, показ доказывается dual-stream (intent рекламодателя + факт устройства). Уровень 1 — только текстовые токены, без биометрии; уровень 2 — композиция по Character Pack. Инварианты: нет fallback → reject (P1, в CI), нет consent → только fallback, в логах только хеши. Пример: `examples/sample_template_pack.json`, спека: `docs/ad-template-pack-v1.md`.
+
+**CI:** `.github/workflows/ci.yml` гоняет на каждый пуш валидатор паков, матрицу проб, референсный пайплайн, e2e-прогон 18/18 и C#-эмулятор; прикладывает verification-артефакт. **Бенчмарки:** `docs/benchmarks.md` (замеры без железа, не гарантии для устройства).
 
 
 ## Состав репозитория
 
-**docs/** архитектурный документ rev3: два сценария синхронизации (A — UGC/локальное ACR через AudioPlaybackCapture, B — DRM cue API для партнёров), словарь жестов v1, фазы развития; xr-session-protocol-v1.md протокол взаимодействия смартфона и XR smart glass; character-pack-spec-v1.md спека контент-паков персонажей для роботов QAZBOT
+**docs/** архитектурный документ rev3: два сценария синхронизации (A — UGC/локальное ACR через AudioPlaybackCapture, B — DRM cue API для партнёров), словарь жестов v1, фазы развития; xr-session-protocol-v1.md протокол взаимодействия смартфона и XR smart glass; character-pack-spec-v1.md спека контент-паков персонажей для роботов QAZBOT, ad-template-pack-v1.md спека персонализированных рекламных шаблонов
 
 **unity/** исходники скелета Phase 1 (C#): XREngine, LayerStack, LayerSwitcher, классификаторы Swipe / PalmHold, пример манифеста
 
-**schemas/** xr-layer-manifest.schema.json (v1, контракт манифеста слоёв, Spatial VAST/VMAP), xr-preset-manifest.schema.json (v2, тайминговые пресеты), gesture-stream.schema.json (контракт синтетического потока жестов), xr-event.schema.json (доменные события для биллинга/аудита), character-pack.schema.json (Character Pack v1, контракт контент-пака персонажа для роботов QAZBOT)
+**schemas/** xr-layer-manifest.schema.json (v1, контракт манифеста слоёв, Spatial VAST/VMAP), xr-preset-manifest.schema.json (v2, тайминговые пресеты), gesture-stream.schema.json (контракт синтетического потока жестов), xr-event.schema.json (доменные события для биллинга/аудита), character-pack.schema.json (Character Pack v1, контракт контент-пака персонажа для роботов QAZBOT), template-pack.schema.json (Ad Template Pack v1, контракт рекламного шаблона с персонализацией), consent-receipt.schema.json (подписанная квитанция согласия), consent-event.schema.json (события ConsentGranted/ConsentRevoked)
 
 **unity/LayerSwitcherEmulator/** headless-тестбенч: чистый C#, replay синтетического потока 26 суставов из JSON через ту же математику жестов, PASS/FAIL-отчёт и замер бюджета 100 мс. Работает без Unity и железа (dotnet run)
 
-**tools/** generate_gesture_stream.py (детерминированный генератор синтетики, seed 7), check_pipeline.py (референсная проверка пайплайна), validate_character_pack.py (валидатор паков), test_character_pack.py (матрица позитивных/негативных проб), e2e_stack_check.py (сквозной прогон: пак → XR-события → decision core → Defense-Dossier, 14/14)
+**tools/** generate_gesture_stream.py (детерминированный генератор синтетики, seed 7), check_pipeline.py (референсная проверка пайплайна), validate_character_pack.py (валидатор паков), test_character_pack.py (матрица позитивных/негативных проб), validate_template_pack.py (валидатор рекламных шаблонов: schema + P1 + level/slots + manifest_sha256), test_template_pack.py (негативная матрица, 9 проб), e2e_stack_check.py (сквозной прогон: пак → XR-события → decision core → Defense-Dossier + ad consent-путь, 18/18)
 
-**examples/** presets/ (пример таймингового пресета), events/ (примеры доменных событий), sample_character_pack.json (референсный пак персонажа «Ару»)
+**examples/** presets/ (пример таймингового пресета), events/ (примеры доменных событий), sample_character_pack.json (референсный пак персонажа «Ару»), sample_template_pack.json (Ad Template Pack level 1, только текстовые токены), sample_consent_receipt.json + sample_consent_granted.json / sample_consent_revoked.json
 
 
 ## Architecture: Host-Periphery Topology
