@@ -248,12 +248,14 @@ async def main():
     check("Defense-Dossier: tampered leaf (dwell 8200->100) rejected",
           not dd.verify_merkle_proof(tampered.leaf_hash(), proof, dd_root))
 
-    # ---- 6. Ad template pack: consent -> personalized / fallback path (glue) ----
-    # NOTE: the template is validated with the SAME validate() the CLI uses
-    # (tools/validate_template_pack.py), so "written vs checked" cannot drift.
+    # ---- 6. Ad template pack: consent -> personalized / fallback path ----
+    # Decision + composition come from the reference composer
+    # (tools/reference_composer.py) — single source of truth, no glue drift.
     sys.path.insert(0, str(REPO_ROOT / "tools"))
     from validate_template_pack import validate as validate_tpl
+    from reference_composer import compose as compose_ad
     TPL = json.loads((REPO_ROOT / "examples" / "sample_template_pack.json").read_text())
+    PROFILE = json.loads((REPO_ROOT / "examples" / "sample_profile.json").read_text())
     CSR_SCHEMA = json.loads((REPO_ROOT / "schemas" / "consent-receipt.schema.json").read_text())
     EVT_SCHEMA = json.loads((REPO_ROOT / "schemas" / "consent-event.schema.json").read_text())
     csr_v = jsonschema.Draft7Validator(CSR_SCHEMA)
@@ -267,35 +269,28 @@ async def main():
     check("consent receipt + ConsentGranted validate",
           not list(csr_v.iter_errors(CSR)) and not list(evt_v.iter_errors(GRANT)))
 
-    def compose_ad(template, consent):
-        """P2 glue: device consent is authoritative; no valid consent -> fallback."""
-        required = set(template["consent"]["classes_required"])
-        if consent is None:
-            return "fallback", {"reason": "no_consent", "personalized": False}
-        granted_classes = {k for k, v in consent["classes"].items() if v}
-        if not required <= granted_classes:
-            return "fallback", {"reason": "classes_insufficient", "personalized": False}
-        ih = hashlib.sha256(
-            (template["template_id"] + consent["receipt_id"] + "compose").encode()
-        ).hexdigest()
-        return "personalized", {"personalized": True, "instance_hash": ih,
-                                "consent_receipt_id": consent["receipt_id"]}
+    # Deterministic demo time: inside the sample receipt window,
+    # after ConsentGranted (10:00), before ConsentRevoked (12:30).
+    AD_NOW = "2026-10-02T11:00:00+06:00"
 
-    mode, det = compose_ad(TPL, None)
+    man_fb = compose_ad(TPL, PROFILE, None, now=AD_NOW)
     ad_fallback = make_event("ImpressionValidated", session_id, "preset_ad_fallback_01",
                              ["pack:tpl_demo_welcome_01:1.0.0", "served:fallback",
                               "personalized:false"],
                              dwell_duration_ms=2000, head_stable=True,
                              timeline_coverage_pct=90.0)
     check("ad path: no consent -> fallback only, personalized=false, event valid",
-          mode == "fallback" and not det["personalized"]
+          man_fb["mode"] == "fallback" and not man_fb["personalized"]
+          and man_fb.get("fallback_served")
           and not list(XR_VALIDATOR.iter_errors(ad_fallback)))
 
-    mode2, det2 = compose_ad(TPL, CSR)
-    check("ad path: valid consent -> personalized, instance hash + receipt id carried",
-          mode2 == "personalized" and det2["personalized"]
-          and len(det2["instance_hash"]) == 64
-          and det2["consent_receipt_id"] == CSR["receipt_id"])
+    man = compose_ad(TPL, PROFILE, CSR, now=AD_NOW)
+    filled = {s["slot_id"]: s["value"] for s in man["filled_slots"]}
+    check("ad path: valid consent -> personalized manifest, slots filled, hash + receipt id",
+          man["mode"] == "personalized" and man["personalized"]
+          and len(man["instance_hash"]) == 64
+          and man["consent_receipt_id"] == CSR["receipt_id"]
+          and filled.get("cup_name") == PROFILE["display_name"])
 
     print(f"\n{ok_count}/{total_count} checks green")
     return ok_count == total_count

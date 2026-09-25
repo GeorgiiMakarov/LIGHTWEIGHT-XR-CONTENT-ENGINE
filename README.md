@@ -28,9 +28,9 @@
 
 **unity/LayerSwitcherEmulator/** headless-тестбенч: чистый C#, replay синтетического потока 26 суставов из JSON через ту же математику жестов, PASS/FAIL-отчёт и замер бюджета 100 мс. Работает без Unity и железа (dotnet run)
 
-**tools/** generate_gesture_stream.py (детерминированный генератор синтетики, seed 7), check_pipeline.py (референсная проверка пайплайна), validate_character_pack.py (валидатор паков), test_character_pack.py (матрица позитивных/негативных проб), validate_template_pack.py (валидатор рекламных шаблонов: schema + P1 + level/slots + manifest_sha256), test_template_pack.py (негативная матрица, 9 проб), e2e_stack_check.py (сквозной прогон: пак → XR-события → decision core → Defense-Dossier + ad consent-путь, 18/18)
+**tools/** generate_gesture_stream.py (детерминированный генератор синтетики, seed 7), check_pipeline.py (референсная проверка пайплайна), validate_character_pack.py (валидатор паков), test_character_pack.py (матрица позитивных/негативных проб), validate_template_pack.py (валидатор рекламных шаблонов: schema + P1 + level/slots + manifest_sha256), test_template_pack.py (негативная матрица, 9 проб), reference_composer.py (референсный композер: personalized/fallback + манифест, 6 проб в test_reference_composer.py), e2e_stack_check.py (сквозной прогон: пак → XR-события → decision core → Defense-Dossier + ad consent-путь, 18/18)
 
-**examples/** presets/ (пример таймингового пресета), events/ (примеры доменных событий), sample_character_pack.json (референсный пак персонажа «Ару»), sample_template_pack.json (Ad Template Pack level 1, только текстовые токены), sample_consent_receipt.json + sample_consent_granted.json / sample_consent_revoked.json
+**examples/** presets/ (пример таймингового пресета), events/ (примеры доменных событий), sample_character_pack.json (референсный пак персонажа «Ару»), sample_template_pack.json (Ad Template Pack level 1, только текстовые токены), sample_consent_receipt.json + sample_consent_granted.json / sample_consent_revoked.json, sample_profile.json (синтетический демо-профиль)
 
 
 ## Architecture: Host-Periphery Topology

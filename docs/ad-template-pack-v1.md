@@ -37,6 +37,19 @@ advertiser -> template pack -> consent -> on-device compose -> XR delivery
 - **P2:** нет валидного consent → только fallback, `personalized=false`.
 - **P3:** в логах хеши, никогда — персонализированное медиа.
 
+## Reference composer
+
+`tools/reference_composer.py` — «открытый интегратор»: решает
+personalized/fallback (P2 как код, не клей), level 1 — подставляет текстовые
+токены из профиля, level 2 — выдаёт контракт `character_composition:
+{status: device_side}` без рендера. Рендер — проприетарная on-device часть,
+композер её не касается. Выдаёт манифест композиции (instance_id,
+filled_slots, instance_hash, expires_at по TTL, `media_retention: hash_only`);
+медиа не пишет. Fail closed: битый пак, нет значения токена, нет валидного
+consent — персонализированного инстанса нет. Пробы:
+`tools/test_reference_composer.py` (6 проб), пример профиля:
+`examples/sample_profile.json` (synthetic).
+
 ## Canonical hash
 
 `manifest_sha256` считается по каноническому JSON манифеста **без самого
@@ -61,5 +74,7 @@ json.dumps(obj, sort_keys=True, separators=(",", ":"),
 - `tools/validate_template_pack.py` — schema + P1 + level/slots
   (level 1: только `name_token`/`text_token`) + `manifest_sha256`.
 - `tools/test_template_pack.py` — негативная матрица (9 проб).
+- `tools/reference_composer.py` + `tools/test_reference_composer.py` (6 проб) —
+  решение personalized/fallback и сборка манифеста композиции.
 - e2e (`tools/e2e_stack_check.py`): consent missing → fallback only;
-  consent ok → personalized flag в evidence (18/18).
+  consent ok → personalized manifest со слоями (18/18).
